@@ -1,12 +1,11 @@
 // TODO
 // - rest of the num interface
-// - generic
 // - error strategies
-// - compaction
 // - macro'd
+// - compaction
 // - intelligent checking strats
+// - fuzzing
 
-// TODO: comment about deliberately not overloading ops on underlying num types
 // TODO: comment about keeping the overflow detection algorithms deliberately simple
 
 use std::ops::{Add, Sub, Mul, Div};
@@ -34,7 +33,6 @@ impl Foo {
 
     // TODO: inline comment
     #[inline(always)]
-    // TODO: use macros to make the body identical to Foo() for function merging opts
     pub fn new(v: i8) -> Foo {
         Foo(v)
     }
@@ -46,42 +44,150 @@ impl Foo {
 }
 
 impl Add for Foo {
-    type Output = Self;
+    type Output = Foo;
 
     #[inline]
-    fn add(self, other: Self) -> Self {
+    fn add(self, other: Foo) -> Self::Output {
         let res = i8::checked_add(self.v, other.v).unwrap(); // intentional panic
         Foo(res)
     }
 }
 
+impl Add for &Foo {
+    type Output = Foo;
+
+    #[inline(always)]
+    fn add(self, other: &Foo) -> Self::Output {
+        <Foo as Add>::add(*self, *other)
+    }
+}
+
+impl Add<&Foo> for Foo {
+    type Output = Foo;
+
+    #[inline(always)]
+    fn add(self, other: &Foo) -> Self::Output {
+        <Foo as Add>::add(self, *other)
+    }
+}
+
+impl Add<Foo> for &Foo {
+    type Output = Foo;
+
+    #[inline(always)]
+    fn add(self, other: Foo) -> Self::Output {
+        <Foo as Add>::add(*self, other)
+    }
+}
+
 impl Sub for Foo {
-    type Output = Self;
+    type Output = Foo;
 
     #[inline]
-    fn sub(self, other: Self) -> Self {
+    fn sub(self, other: Foo) -> Self::Output {
         let res = i8::checked_sub(self.v, other.v).unwrap(); // intentional panic
         Foo(res)
     }
 }
 
+impl Sub for &Foo {
+    type Output = Foo;
+
+    #[inline(always)]
+    fn sub(self, other: &Foo) -> Self::Output {
+        <Foo as Sub>::sub(*self, *other)
+    }
+}
+
+impl Sub<&Foo> for Foo {
+    type Output = Foo;
+
+    #[inline(always)]
+    fn sub(self, other: &Foo) -> Self::Output {
+        <Foo as Sub>::sub(self, *other)
+    }
+}
+
+impl Sub<Foo> for &Foo {
+    type Output = Foo;
+
+    #[inline(always)]
+    fn sub(self, other: Foo) -> Self::Output {
+        <Foo as Sub>::sub(*self, other)
+    }
+}
+
 impl Mul for Foo {
-    type Output = Self;
+    type Output = Foo;
 
     #[inline]
-    fn mul(self, other: Self) -> Self {
+    fn mul(self, other: Foo) -> Self::Output {
         let res = i8::checked_mul(self.v, other.v).unwrap(); // intentional panic
         Foo(res)
     }
 }
 
+impl Mul for &Foo {
+    type Output = Foo;
+
+    #[inline(always)]
+    fn mul(self, other: &Foo) -> Self::Output {
+        <Foo as Mul>::mul(*self, *other)
+    }
+}
+
+impl Mul<&Foo> for Foo {
+    type Output = Foo;
+
+    #[inline(always)]
+    fn mul(self, other: &Foo) -> Self::Output {
+        <Foo as Mul>::mul(self, *other)
+    }
+}
+
+impl Mul<Foo> for &Foo {
+    type Output = Foo;
+
+    #[inline(always)]
+    fn mul(self, other: Foo) -> Self::Output {
+        <Foo as Mul>::mul(*self, other)
+    }
+}
+
 impl Div for Foo {
-    type Output = Self;
+    type Output = Foo;
 
     #[inline]
-    fn div(self, other: Self) -> Self {
+    fn div(self, other: Foo) -> Self::Output {
         let res = i8::checked_div(self.v, other.v).unwrap(); // intentional panic
         Foo(res)
+    }
+}
+
+impl Div for &Foo {
+    type Output = Foo;
+
+    #[inline(always)]
+    fn div(self, other: &Foo) -> Self::Output {
+        <Foo as Div>::div(*self, *other)
+    }
+}
+
+impl Div<&Foo> for Foo {
+    type Output = Foo;
+
+    #[inline(always)]
+    fn div(self, other: &Foo) -> Self::Output {
+        <Foo as Div>::div(self, *other)
+    }
+}
+
+impl Div<Foo> for &Foo {
+    type Output = Foo;
+
+    #[inline(always)]
+    fn div(self, other: Foo) -> Self::Output {
+        <Foo as Div>::div(*self, other)
     }
 }
 
@@ -139,6 +245,9 @@ mod tests {
             let y = Foo(30);
             let z = x + y;
             assert_eq!(10, z.val());
+            assert_eq!(&x + &y, Foo(10));
+            assert_eq!(x + &y, Foo(10));
+            assert_eq!(&x + y, Foo(10));
         }
 
         #[test]
@@ -175,6 +284,9 @@ mod tests {
             let y = Foo(30);
             let z = x - y;
             assert_eq!(-50, z.val());
+            assert_eq!(&x - &y, Foo(-50));
+            assert_eq!(x - &y, Foo(-50));
+            assert_eq!(&x - y, Foo(-50));
         }
 
         #[test]
@@ -211,6 +323,9 @@ mod tests {
             let y = Foo(30);
             let z = x * y;
             assert_eq!(60, z.val());
+            assert_eq!(&x * &y, Foo(60));
+            assert_eq!(x * &y, Foo(60));
+            assert_eq!(&x * y, Foo(60));
         }
 
         #[test]
@@ -243,10 +358,13 @@ mod tests {
 
         #[test]
         fn success() {
-            let x = Foo(-20);
-            let y = Foo(30);
-            let z = x + y;
-            assert_eq!(10, z.val());
+            let x = Foo(60);
+            let y = Foo(-3);
+            let z = x / y;
+            assert_eq!(-20, z.val());
+            assert_eq!(&x / &y, Foo(-20));
+            assert_eq!(x / &y, Foo(-20));
+            assert_eq!(&x / y, Foo(-20));
         }
 
         // TODO: test to show that -128 / -1 panics on overflow
