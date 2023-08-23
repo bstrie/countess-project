@@ -1,14 +1,12 @@
 // TODO
-// - rest of the num interface
 // - error strategies
 // - macro'd
 // - compaction
 // - intelligent checking strats
+// - configure whether or not to overload underlying numeric types
 // - fuzzing
 
 // TODO: comment about keeping the overflow detection algorithms deliberately simple
-
-use std::ops::{Add, Sub, Mul, Div};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Foo {
@@ -43,151 +41,443 @@ impl Foo {
     }
 }
 
-impl Add for Foo {
+// Add impls
+
+impl std::ops::Add<Foo> for Foo {
     type Output = Foo;
 
     #[inline]
     fn add(self, other: Foo) -> Self::Output {
-        let res = i8::checked_add(self.v, other.v).unwrap(); // intentional panic
-        Foo(res)
+        Foo(i8::checked_add(self.v, other.v).unwrap())
     }
 }
 
-impl Add for &Foo {
+impl std::ops::Add<&Foo> for Foo {
     type Output = Foo;
 
-    #[inline(always)]
+    #[inline]
     fn add(self, other: &Foo) -> Self::Output {
-        <Foo as Add>::add(*self, *other)
+        Foo(i8::checked_add(self.v, other.v).unwrap())
     }
 }
 
-impl Add<&Foo> for Foo {
+impl std::ops::Add<i8> for Foo {
     type Output = Foo;
 
-    #[inline(always)]
-    fn add(self, other: &Foo) -> Self::Output {
-        <Foo as Add>::add(self, *other)
+    #[inline]
+    fn add(self, other: i8) -> Self::Output {
+        Foo(i8::checked_add(self.v, other).unwrap())
     }
 }
 
-impl Add<Foo> for &Foo {
+impl std::ops::Add<&i8> for Foo {
+    type Output = Foo;
+
+    #[inline]
+    fn add(self, other: &i8) -> Self::Output {
+        Foo(i8::checked_add(self.v, *other).unwrap())
+    }
+}
+
+impl std::ops::Add<Foo> for &Foo {
     type Output = Foo;
 
     #[inline(always)]
     fn add(self, other: Foo) -> Self::Output {
-        <Foo as Add>::add(*self, other)
+        Foo(i8::checked_add(self.v, other.v).unwrap())
     }
 }
 
-impl Sub for Foo {
+impl std::ops::Add<&Foo> for &Foo {
+    type Output = Foo;
+
+    #[inline]
+    fn add(self, other: &Foo) -> Self::Output {
+        Foo(i8::checked_add(self.v, other.v).unwrap())
+    }
+}
+
+impl std::ops::Add<i8> for &Foo {
+    type Output = Foo;
+
+    #[inline]
+    fn add(self, other: i8) -> Self::Output {
+        Foo(i8::checked_add(self.v, other).unwrap())
+    }
+}
+
+impl std::ops::Add<&i8> for &Foo {
+    type Output = Foo;
+
+    #[inline]
+    fn add(self, other: &i8) -> Self::Output {
+        Foo(i8::checked_add(self.v, *other).unwrap())
+    }
+}
+
+impl std::ops::Add<Foo> for i8 {
+    type Output = Foo;
+
+    #[inline]
+    fn add(self, other: Foo) -> Self::Output {
+        Foo(i8::checked_add(self, other.v).unwrap())
+    }
+}
+
+impl std::ops::Add<&Foo> for i8 {
+    type Output = Foo;
+
+    #[inline]
+    fn add(self, other: &Foo) -> Self::Output {
+        Foo(i8::checked_add(self, other.v).unwrap())
+    }
+}
+
+impl std::ops::Add<Foo> for &i8 {
+    type Output = Foo;
+
+    #[inline]
+    fn add(self, other: Foo) -> Self::Output {
+        Foo(i8::checked_add(*self, other.v).unwrap())
+    }
+}
+
+impl std::ops::Add<&Foo> for &i8 {
+    type Output = Foo;
+
+    #[inline]
+    fn add(self, other: &Foo) -> Self::Output {
+        Foo(i8::checked_add(*self, other.v).unwrap())
+    }
+}
+
+// Sub impls
+
+impl std::ops::Sub<Foo> for Foo {
     type Output = Foo;
 
     #[inline]
     fn sub(self, other: Foo) -> Self::Output {
-        let res = i8::checked_sub(self.v, other.v).unwrap(); // intentional panic
-        Foo(res)
+        Foo(i8::checked_sub(self.v, other.v).unwrap())
     }
 }
 
-impl Sub for &Foo {
+impl std::ops::Sub<&Foo> for Foo {
     type Output = Foo;
 
-    #[inline(always)]
+    #[inline]
     fn sub(self, other: &Foo) -> Self::Output {
-        <Foo as Sub>::sub(*self, *other)
+        Foo(i8::checked_sub(self.v, other.v).unwrap())
     }
 }
 
-impl Sub<&Foo> for Foo {
+impl std::ops::Sub<i8> for Foo {
     type Output = Foo;
 
-    #[inline(always)]
-    fn sub(self, other: &Foo) -> Self::Output {
-        <Foo as Sub>::sub(self, *other)
+    #[inline]
+    fn sub(self, other: i8) -> Self::Output {
+        Foo(i8::checked_sub(self.v, other).unwrap())
     }
 }
 
-impl Sub<Foo> for &Foo {
+impl std::ops::Sub<&i8> for Foo {
+    type Output = Foo;
+
+    #[inline]
+    fn sub(self, other: &i8) -> Self::Output {
+        Foo(i8::checked_sub(self.v, *other).unwrap())
+    }
+}
+
+impl std::ops::Sub<Foo> for &Foo {
     type Output = Foo;
 
     #[inline(always)]
     fn sub(self, other: Foo) -> Self::Output {
-        <Foo as Sub>::sub(*self, other)
+        Foo(i8::checked_sub(self.v, other.v).unwrap())
     }
 }
 
-impl Mul for Foo {
+impl std::ops::Sub<&Foo> for &Foo {
+    type Output = Foo;
+
+    #[inline]
+    fn sub(self, other: &Foo) -> Self::Output {
+        Foo(i8::checked_sub(self.v, other.v).unwrap())
+    }
+}
+
+impl std::ops::Sub<i8> for &Foo {
+    type Output = Foo;
+
+    #[inline]
+    fn sub(self, other: i8) -> Self::Output {
+        Foo(i8::checked_sub(self.v, other).unwrap())
+    }
+}
+
+impl std::ops::Sub<&i8> for &Foo {
+    type Output = Foo;
+
+    #[inline]
+    fn sub(self, other: &i8) -> Self::Output {
+        Foo(i8::checked_sub(self.v, *other).unwrap())
+    }
+}
+
+impl std::ops::Sub<Foo> for i8 {
+    type Output = Foo;
+
+    #[inline]
+    fn sub(self, other: Foo) -> Self::Output {
+        Foo(i8::checked_sub(self, other.v).unwrap())
+    }
+}
+
+impl std::ops::Sub<&Foo> for i8 {
+    type Output = Foo;
+
+    #[inline]
+    fn sub(self, other: &Foo) -> Self::Output {
+        Foo(i8::checked_sub(self, other.v).unwrap())
+    }
+}
+
+impl std::ops::Sub<Foo> for &i8 {
+    type Output = Foo;
+
+    #[inline]
+    fn sub(self, other: Foo) -> Self::Output {
+        Foo(i8::checked_sub(*self, other.v).unwrap())
+    }
+}
+
+impl std::ops::Sub<&Foo> for &i8 {
+    type Output = Foo;
+
+    #[inline]
+    fn sub(self, other: &Foo) -> Self::Output {
+        Foo(i8::checked_sub(*self, other.v).unwrap())
+    }
+}
+
+// Mul impls
+
+impl std::ops::Mul<Foo> for Foo {
     type Output = Foo;
 
     #[inline]
     fn mul(self, other: Foo) -> Self::Output {
-        let res = i8::checked_mul(self.v, other.v).unwrap(); // intentional panic
-        Foo(res)
+        Foo(i8::checked_mul(self.v, other.v).unwrap())
     }
 }
 
-impl Mul for &Foo {
+impl std::ops::Mul<&Foo> for Foo {
     type Output = Foo;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, other: &Foo) -> Self::Output {
-        <Foo as Mul>::mul(*self, *other)
+        Foo(i8::checked_mul(self.v, other.v).unwrap())
     }
 }
 
-impl Mul<&Foo> for Foo {
+impl std::ops::Mul<i8> for Foo {
     type Output = Foo;
 
-    #[inline(always)]
-    fn mul(self, other: &Foo) -> Self::Output {
-        <Foo as Mul>::mul(self, *other)
+    #[inline]
+    fn mul(self, other: i8) -> Self::Output {
+        Foo(i8::checked_mul(self.v, other).unwrap())
     }
 }
 
-impl Mul<Foo> for &Foo {
+impl std::ops::Mul<&i8> for Foo {
+    type Output = Foo;
+
+    #[inline]
+    fn mul(self, other: &i8) -> Self::Output {
+        Foo(i8::checked_mul(self.v, *other).unwrap())
+    }
+}
+
+impl std::ops::Mul<Foo> for &Foo {
     type Output = Foo;
 
     #[inline(always)]
     fn mul(self, other: Foo) -> Self::Output {
-        <Foo as Mul>::mul(*self, other)
+        Foo(i8::checked_mul(self.v, other.v).unwrap())
     }
 }
 
-impl Div for Foo {
+impl std::ops::Mul<&Foo> for &Foo {
+    type Output = Foo;
+
+    #[inline]
+    fn mul(self, other: &Foo) -> Self::Output {
+        Foo(i8::checked_mul(self.v, other.v).unwrap())
+    }
+}
+
+impl std::ops::Mul<i8> for &Foo {
+    type Output = Foo;
+
+    #[inline]
+    fn mul(self, other: i8) -> Self::Output {
+        Foo(i8::checked_mul(self.v, other).unwrap())
+    }
+}
+
+impl std::ops::Mul<&i8> for &Foo {
+    type Output = Foo;
+
+    #[inline]
+    fn mul(self, other: &i8) -> Self::Output {
+        Foo(i8::checked_mul(self.v, *other).unwrap())
+    }
+}
+
+impl std::ops::Mul<Foo> for i8 {
+    type Output = Foo;
+
+    #[inline]
+    fn mul(self, other: Foo) -> Self::Output {
+        Foo(i8::checked_mul(self, other.v).unwrap())
+    }
+}
+
+impl std::ops::Mul<&Foo> for i8 {
+    type Output = Foo;
+
+    #[inline]
+    fn mul(self, other: &Foo) -> Self::Output {
+        Foo(i8::checked_mul(self, other.v).unwrap())
+    }
+}
+
+impl std::ops::Mul<Foo> for &i8 {
+    type Output = Foo;
+
+    #[inline]
+    fn mul(self, other: Foo) -> Self::Output {
+        Foo(i8::checked_mul(*self, other.v).unwrap())
+    }
+}
+
+impl std::ops::Mul<&Foo> for &i8 {
+    type Output = Foo;
+
+    #[inline]
+    fn mul(self, other: &Foo) -> Self::Output {
+        Foo(i8::checked_mul(*self, other.v).unwrap())
+    }
+}
+
+// Div impls
+
+impl std::ops::Div<Foo> for Foo {
     type Output = Foo;
 
     #[inline]
     fn div(self, other: Foo) -> Self::Output {
-        let res = i8::checked_div(self.v, other.v).unwrap(); // intentional panic
-        Foo(res)
+        Foo(i8::checked_div(self.v, other.v).unwrap())
     }
 }
 
-impl Div for &Foo {
+impl std::ops::Div<&Foo> for Foo {
     type Output = Foo;
 
-    #[inline(always)]
+    #[inline]
     fn div(self, other: &Foo) -> Self::Output {
-        <Foo as Div>::div(*self, *other)
+        Foo(i8::checked_div(self.v, other.v).unwrap())
     }
 }
 
-impl Div<&Foo> for Foo {
+impl std::ops::Div<i8> for Foo {
     type Output = Foo;
 
-    #[inline(always)]
-    fn div(self, other: &Foo) -> Self::Output {
-        <Foo as Div>::div(self, *other)
+    #[inline]
+    fn div(self, other: i8) -> Self::Output {
+        Foo(i8::checked_div(self.v, other).unwrap())
     }
 }
 
-impl Div<Foo> for &Foo {
+impl std::ops::Div<&i8> for Foo {
+    type Output = Foo;
+
+    #[inline]
+    fn div(self, other: &i8) -> Self::Output {
+        Foo(i8::checked_div(self.v, *other).unwrap())
+    }
+}
+
+impl std::ops::Div<Foo> for &Foo {
     type Output = Foo;
 
     #[inline(always)]
     fn div(self, other: Foo) -> Self::Output {
-        <Foo as Div>::div(*self, other)
+        Foo(i8::checked_div(self.v, other.v).unwrap())
+    }
+}
+
+impl std::ops::Div<&Foo> for &Foo {
+    type Output = Foo;
+
+    #[inline]
+    fn div(self, other: &Foo) -> Self::Output {
+        Foo(i8::checked_div(self.v, other.v).unwrap())
+    }
+}
+
+impl std::ops::Div<i8> for &Foo {
+    type Output = Foo;
+
+    #[inline]
+    fn div(self, other: i8) -> Self::Output {
+        Foo(i8::checked_div(self.v, other).unwrap())
+    }
+}
+
+impl std::ops::Div<&i8> for &Foo {
+    type Output = Foo;
+
+    #[inline]
+    fn div(self, other: &i8) -> Self::Output {
+        Foo(i8::checked_div(self.v, *other).unwrap())
+    }
+}
+
+impl std::ops::Div<Foo> for i8 {
+    type Output = Foo;
+
+    #[inline]
+    fn div(self, other: Foo) -> Self::Output {
+        Foo(i8::checked_div(self, other.v).unwrap())
+    }
+}
+
+impl std::ops::Div<&Foo> for i8 {
+    type Output = Foo;
+
+    #[inline]
+    fn div(self, other: &Foo) -> Self::Output {
+        Foo(i8::checked_div(self, other.v).unwrap())
+    }
+}
+
+impl std::ops::Div<Foo> for &i8 {
+    type Output = Foo;
+
+    #[inline]
+    fn div(self, other: Foo) -> Self::Output {
+        Foo(i8::checked_div(*self, other.v).unwrap())
+    }
+}
+
+impl std::ops::Div<&Foo> for &i8 {
+    type Output = Foo;
+
+    #[inline]
+    fn div(self, other: &Foo) -> Self::Output {
+        Foo(i8::checked_div(*self, other.v).unwrap())
     }
 }
 
@@ -245,9 +535,22 @@ mod tests {
             let y = Foo(30);
             let z = x + y;
             assert_eq!(10, z.val());
-            assert_eq!(&x + &y, Foo(10));
-            assert_eq!(x + &y, Foo(10));
-            assert_eq!(&x + y, Foo(10));
+        }
+
+        #[test]
+        fn impls() {
+            assert_eq!(Foo(12)  + Foo(3),  Foo(15));
+            assert_eq!(Foo(12)  + &Foo(3), Foo(15));
+            assert_eq!(Foo(12)  + 3,       Foo(15));
+            assert_eq!(Foo(12)  + &3,      Foo(15));
+            assert_eq!(&Foo(12) + Foo(3),  Foo(15));
+            assert_eq!(&Foo(12) + &Foo(3), Foo(15));
+            assert_eq!(&Foo(12) + 3,       Foo(15));
+            assert_eq!(&Foo(12) + &3,      Foo(15));
+            assert_eq!(12       + Foo(3),  Foo(15));
+            assert_eq!(12       + &Foo(3), Foo(15));
+            assert_eq!(&12      + Foo(3),  Foo(15));
+            assert_eq!(&12      + &Foo(3), Foo(15));
         }
 
         #[test]
@@ -284,9 +587,22 @@ mod tests {
             let y = Foo(30);
             let z = x - y;
             assert_eq!(-50, z.val());
-            assert_eq!(&x - &y, Foo(-50));
-            assert_eq!(x - &y, Foo(-50));
-            assert_eq!(&x - y, Foo(-50));
+        }
+
+        #[test]
+        fn impls() {
+            assert_eq!(Foo(12)  - Foo(3),  Foo(9));
+            assert_eq!(Foo(12)  - &Foo(3), Foo(9));
+            assert_eq!(Foo(12)  - 3,       Foo(9));
+            assert_eq!(Foo(12)  - &3,      Foo(9));
+            assert_eq!(&Foo(12) - Foo(3),  Foo(9));
+            assert_eq!(&Foo(12) - &Foo(3), Foo(9));
+            assert_eq!(&Foo(12) - 3,       Foo(9));
+            assert_eq!(&Foo(12) - &3,      Foo(9));
+            assert_eq!(12       - Foo(3),  Foo(9));
+            assert_eq!(12       - &Foo(3), Foo(9));
+            assert_eq!(&12      - Foo(3),  Foo(9));
+            assert_eq!(&12      - &Foo(3), Foo(9));
         }
 
         #[test]
@@ -323,9 +639,22 @@ mod tests {
             let y = Foo(30);
             let z = x * y;
             assert_eq!(60, z.val());
-            assert_eq!(&x * &y, Foo(60));
-            assert_eq!(x * &y, Foo(60));
-            assert_eq!(&x * y, Foo(60));
+        }
+
+        #[test]
+        fn impls() {
+            assert_eq!(Foo(12)  * Foo(3),  Foo(36));
+            assert_eq!(Foo(12)  * &Foo(3), Foo(36));
+            assert_eq!(Foo(12)  * 3,       Foo(36));
+            assert_eq!(Foo(12)  * &3,      Foo(36));
+            assert_eq!(&Foo(12) * Foo(3),  Foo(36));
+            assert_eq!(&Foo(12) * &Foo(3), Foo(36));
+            assert_eq!(&Foo(12) * 3,       Foo(36));
+            assert_eq!(&Foo(12) * &3,      Foo(36));
+            assert_eq!(12       * Foo(3),  Foo(36));
+            assert_eq!(12       * &Foo(3), Foo(36));
+            assert_eq!(&12      * Foo(3),  Foo(36));
+            assert_eq!(&12      * &Foo(3), Foo(36));
         }
 
         #[test]
@@ -362,9 +691,22 @@ mod tests {
             let y = Foo(-3);
             let z = x / y;
             assert_eq!(-20, z.val());
-            assert_eq!(&x / &y, Foo(-20));
-            assert_eq!(x / &y, Foo(-20));
-            assert_eq!(&x / y, Foo(-20));
+        }
+
+        #[test]
+        fn impls() {
+            assert_eq!(Foo(12)  / Foo(3),  Foo(4));
+            assert_eq!(Foo(12)  / &Foo(3), Foo(4));
+            assert_eq!(Foo(12)  / 3,       Foo(4));
+            assert_eq!(Foo(12)  / &3,      Foo(4));
+            assert_eq!(&Foo(12) / Foo(3),  Foo(4));
+            assert_eq!(&Foo(12) / &Foo(3), Foo(4));
+            assert_eq!(&Foo(12) / 3,       Foo(4));
+            assert_eq!(&Foo(12) / &3,      Foo(4));
+            assert_eq!(12       / Foo(3),  Foo(4));
+            assert_eq!(12       / &Foo(3), Foo(4));
+            assert_eq!(&12      / Foo(3),  Foo(4));
+            assert_eq!(&12      / &Foo(3), Foo(4));
         }
 
         // TODO: test to show that -128 / -1 panics on overflow
