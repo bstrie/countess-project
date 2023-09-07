@@ -8,7 +8,7 @@
 
 // TODO: comment about keeping the overflow detection algorithms deliberately simple
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, PartialEq)]
 pub struct Foo {
     v: i8,
 }
@@ -481,7 +481,6 @@ impl std::ops::Div<&Foo> for &i8 {
     }
 }
 
-#[cfg(test)]
 mod tests {
     use super::*;
 
@@ -513,16 +512,6 @@ mod tests {
         #[should_panic]
         fn max_oob_construction() {
             let _x = Foo(100);
-        }
-
-        #[test]
-        fn derives() {
-            let x = Foo(42);
-            let y = x; let z = x; // Copy
-            let a = x.clone(); // Clone
-            assert_eq!(x, y); // PartialEq
-            assert!(z < Foo(43)); // PartialOrd
-            println!("{a:?}"); // Debug
         }
     }
 

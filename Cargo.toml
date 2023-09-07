@@ -1,6 +1,14 @@
 [package]
-name = "countess"
+name = "countess-project"
 version = "0.1.0"
 edition = "2021"
+publish = false
+
+[workspace]
+
+[[bin]]
+name = "sandbox"
+path = "sandbox.rs"
 
 [dependencies]
+countess = { path = "countess" }
